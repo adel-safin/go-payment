@@ -74,7 +74,7 @@ func main() {
 	server := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 	transferv1.RegisterTransferServiceServer(server, grpcadapter.NewServer(svc))
 
-	writer := pkgkafka.NewWriter(cfg.KafkaBrokers, cfg.KafkaTopic)
+	writer := pkgkafka.NewReliablePublisher(cfg.KafkaBrokers, cfg.KafkaTopic, cfg.KafkaDLQTopic, log)
 	defer writer.Close()
 	worker := outbox.NewWorker(postgres.NewOutboxStore(pool), writer, log)
 	go worker.Run(ctx)

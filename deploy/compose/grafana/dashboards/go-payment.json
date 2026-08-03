@@ -7,11 +7,27 @@
   "links": [],
   "panels": [
     {
-      "title": "OTLP scrape up",
+      "title": "Collector up",
       "type": "stat",
       "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
       "targets": [
         { "expr": "up{job=\"otel-collector\"}", "refId": "A" }
+      ]
+    },
+    {
+      "title": "Transfer created",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "targets": [
+        { "expr": "rate(transfer_created_total[1m])", "refId": "A", "legendFormat": "created/s" }
+      ]
+    },
+    {
+      "title": "Transfer failed",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "targets": [
+        { "expr": "rate(transfer_failed_total[1m])", "refId": "A", "legendFormat": "failed/s" }
       ]
     }
   ],
@@ -21,5 +37,5 @@
   "time": { "from": "now-1h", "to": "now" },
   "title": "Go Payment Overview",
   "uid": "go-payment-overview",
-  "version": 1
+  "version": 2
 }
