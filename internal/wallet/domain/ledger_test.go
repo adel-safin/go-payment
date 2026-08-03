@@ -37,3 +37,12 @@ func TestNewWallet(t *testing.T) {
 		t.Fatalf("got %v", err)
 	}
 }
+
+func TestBalancedPair(t *testing.T) {
+	if !BalancedPair(100, 100) {
+		t.Fatal("expected balanced")
+	}
+	if BalancedPair(100, 99) || BalancedPair(0, 0) {
+		t.Fatal("expected unbalanced")
+	}
+}
