@@ -17,6 +17,12 @@ jobs:
         run: go vet ./...
       - name: Unit tests with race
         run: go test ./... -race -count=1
+      - name: Domain coverage gate
+        run: |
+          go test ./internal/identity/domain ./internal/wallet/domain ./internal/transfer/domain \
+            -coverprofile=coverage-domain.out -count=1
+          go tool cover -func=coverage-domain.out | tee coverage-domain.txt
+          awk '/total:/ { gsub(/%/,"",$3); if ($3+0 < 80) { print "domain coverage below 80%: "$3; exit 1 } }' coverage-domain.txt
 
   integration:
     runs-on: ubuntu-latest
@@ -28,3 +34,12 @@ jobs:
           go-version: "1.23"
       - name: Integration tests
         run: go test ./... -tags=integration -count=1 -timeout 15m
+
+  proto:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bufbuild/buf-setup-action@v1
+      - name: buf lint
+        run: buf lint
+        working-directory: .

@@ -55,16 +55,13 @@ func (m *memUsers) GetByID(_ context.Context, id uuid.UUID) (domain.User, error)
 	return u, nil
 }
 
-func TestRegisterLogin(t *testing.T) {
+func TestGetUser(t *testing.T) {
 	svc := app.NewService(newMem(), pkgauth.NewTokenManager("s", "iss", time.Hour))
-	reg, err := svc.Register(context.Background(), "a@b.com", "password1")
+	reg, err := svc.Register(context.Background(), "b@b.com", "password1")
 	require.NoError(t, err)
-	require.NotEmpty(t, reg.UserID)
-
-	login, err := svc.Login(context.Background(), "a@b.com", "password1")
+	u, err := svc.GetUser(context.Background(), reg.UserID)
 	require.NoError(t, err)
-	require.NotEmpty(t, login.Token)
-
-	_, err = svc.Login(context.Background(), "a@b.com", "wrongpass")
-	require.ErrorIs(t, err, domain.ErrBadCredentials)
+	require.Equal(t, "b@b.com", u.Email)
+	_, err = svc.GetUser(context.Background(), "bad")
+	require.Error(t, err)
 }

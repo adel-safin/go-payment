@@ -29,8 +29,10 @@ func (w *Worker) Run(ctx context.Context) {
 	ticker := time.NewTicker(w.interval)
 	defer ticker.Stop()
 	for {
-		if err := w.tick(ctx); err != nil && ctx.Err() == nil {
-			w.log.Error("outbox tick failed", "err", err)
+		if err := w.Tick(ctx); err != nil && ctx.Err() == nil {
+			if w.log != nil {
+				w.log.Error("outbox tick failed", "err", err)
+			}
 		}
 		select {
 		case <-ctx.Done():
@@ -40,7 +42,8 @@ func (w *Worker) Run(ctx context.Context) {
 	}
 }
 
-func (w *Worker) tick(ctx context.Context) error {
+// Tick processes one batch of unpublished events.
+func (w *Worker) Tick(ctx context.Context) error {
 	events, err := w.store.FetchUnpublished(ctx, w.batch)
 	if err != nil {
 		return err
@@ -53,7 +56,9 @@ func (w *Worker) tick(ctx context.Context) error {
 		if err := w.store.MarkPublished(ctx, e.ID, now); err != nil {
 			return err
 		}
-		w.log.Info("outbox published", "id", e.ID, "type", e.EventType)
+		if w.log != nil {
+			w.log.Info("outbox published", "id", e.ID, "type", e.EventType)
+		}
 	}
 	return nil
 }

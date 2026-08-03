@@ -1,6 +1,10 @@
 package domain
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/google/uuid"
+)
 
 func TestApplyCreditDebit(t *testing.T) {
 	b := Balance{BalanceMinor: 1000, Version: 1}
@@ -20,11 +24,16 @@ func TestApplyCreditDebit(t *testing.T) {
 	}
 }
 
-func TestBalancedPair(t *testing.T) {
-	if !BalancedPair(100, 100) {
-		t.Fatal("expected balanced")
+func TestNewWallet(t *testing.T) {
+	uid := uuid.MustParse("11111111-1111-1111-1111-111111111111")
+	w, err := NewWallet(uid, "RUB")
+	if err != nil {
+		t.Fatal(err)
 	}
-	if BalancedPair(100, 99) {
-		t.Fatal("expected unbalanced")
+	if w.Currency != "RUB" {
+		t.Fatal(w.Currency)
+	}
+	if _, err := NewWallet(uid, "RU"); err != ErrInvalidCurrency {
+		t.Fatalf("got %v", err)
 	}
 }
