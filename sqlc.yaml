@@ -1,0 +1,10 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "db/queries/wallet"
+    schema: "db/migrations/wallet"
+    gen:
+      go:
+        package: "walletsql"
+        out: "internal/wallet/adapters/postgres/sqlc"
+        sql_package: "pgx/v5"
