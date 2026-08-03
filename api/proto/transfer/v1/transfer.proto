@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package transfer.v1;
+
+option go_package = "github.com/adel-safin/go-payment/api/gen/transfer/v1;transferv1";
+
+service TransferService {
+  rpc CreateTransfer(CreateTransferRequest) returns (CreateTransferResponse);
+  rpc GetTransfer(GetTransferRequest) returns (GetTransferResponse);
+}
+
+message CreateTransferRequest {
+  string from_wallet_id = 1;
+  string to_wallet_id = 2;
+  int64 amount_minor = 3;
+  string currency = 4;
+  string idempotency_key = 5;
+  string user_id = 6;
+}
+
+message CreateTransferResponse {
+  string transfer_id = 1;
+  string status = 2;
+  int64 amount_minor = 3;
+  bool idempotent_replay = 4;
+}
+
+message GetTransferRequest {
+  string transfer_id = 1;
+}
+
+message GetTransferResponse {
+  string transfer_id = 1;
+  string from_wallet_id = 2;
+  string to_wallet_id = 3;
+  int64 amount_minor = 4;
+  string currency = 5;
+  string status = 6;
+}

@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package wallet.v1;
+
+option go_package = "github.com/adel-safin/go-payment/api/gen/wallet/v1;walletv1";
+
+service WalletService {
+  rpc CreateWallet(CreateWalletRequest) returns (CreateWalletResponse);
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+  rpc Credit(CreditRequest) returns (MutateBalanceResponse);
+  rpc Debit(DebitRequest) returns (MutateBalanceResponse);
+}
+
+message CreateWalletRequest {
+  string user_id = 1;
+  string currency = 2;
+}
+
+message CreateWalletResponse {
+  string wallet_id = 1;
+  string user_id = 2;
+  string currency = 3;
+}
+
+message GetBalanceRequest {
+  string wallet_id = 1;
+}
+
+message GetBalanceResponse {
+  string wallet_id = 1;
+  int64 balance_minor = 2;
+  string currency = 3;
+  int64 version = 4;
+}
+
+message CreditRequest {
+  string wallet_id = 1;
+  int64 amount_minor = 2;
+  string transfer_id = 3;
+  string idempotency_key = 4;
+}
+
+message DebitRequest {
+  string wallet_id = 1;
+  int64 amount_minor = 2;
+  string transfer_id = 3;
+  string idempotency_key = 4;
+}
+
+message MutateBalanceResponse {
+  string wallet_id = 1;
+  int64 balance_minor = 2;
+  int64 version = 3;
+  string entry_id = 4;
+}
