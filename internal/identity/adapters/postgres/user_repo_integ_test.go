@@ -15,17 +15,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 func TestRegisterLoginIntegration(t *testing.T) {
 	ctx := context.Background()
-	pg, err := postgres.Run(ctx,
+	pg, err := tcpostgres.Run(ctx,
 		"postgres:16-alpine",
-		postgres.WithDatabase("identity"),
-		postgres.WithUsername("payment"),
-		postgres.WithPassword("payment"),
+		tcpostgres.WithDatabase("identity"),
+		tcpostgres.WithUsername("payment"),
+		tcpostgres.WithPassword("payment"),
 		testcontainers.WithWaitStrategy(wait.ForListeningPort("5432/tcp")),
 	)
 	require.NoError(t, err)
