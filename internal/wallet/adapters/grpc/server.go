@@ -42,23 +42,23 @@ func (s *Server) GetBalance(ctx context.Context, req *walletv1.GetBalanceRequest
 	}, nil
 }
 
-func (s *Server) Credit(ctx context.Context, req *walletv1.CreditRequest) (*walletv1.MutateBalanceResponse, error) {
+func (s *Server) Credit(ctx context.Context, req *walletv1.CreditRequest) (*walletv1.CreditResponse, error) {
 	res, err := s.svc.Credit(ctx, req.GetWalletId(), req.GetAmountMinor(), req.GetTransferId(), req.GetIdempotencyKey())
 	if err != nil {
 		return nil, mapErr(err)
 	}
-	return &walletv1.MutateBalanceResponse{
+	return &walletv1.CreditResponse{
 		WalletId: res.Balance.WalletID.String(), BalanceMinor: res.Balance.BalanceMinor,
 		Version: res.Balance.Version, EntryId: res.EntryID.String(),
 	}, nil
 }
 
-func (s *Server) Debit(ctx context.Context, req *walletv1.DebitRequest) (*walletv1.MutateBalanceResponse, error) {
+func (s *Server) Debit(ctx context.Context, req *walletv1.DebitRequest) (*walletv1.DebitResponse, error) {
 	res, err := s.svc.Debit(ctx, req.GetWalletId(), req.GetAmountMinor(), req.GetTransferId(), req.GetIdempotencyKey())
 	if err != nil {
 		return nil, mapErr(err)
 	}
-	return &walletv1.MutateBalanceResponse{
+	return &walletv1.DebitResponse{
 		WalletId: res.Balance.WalletID.String(), BalanceMinor: res.Balance.BalanceMinor,
 		Version: res.Balance.Version, EntryId: res.EntryID.String(),
 	}, nil

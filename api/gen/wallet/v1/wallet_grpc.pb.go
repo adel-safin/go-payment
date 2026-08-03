@@ -31,8 +31,8 @@ const (
 type WalletServiceClient interface {
 	CreateWallet(ctx context.Context, in *CreateWalletRequest, opts ...grpc.CallOption) (*CreateWalletResponse, error)
 	GetBalance(ctx context.Context, in *GetBalanceRequest, opts ...grpc.CallOption) (*GetBalanceResponse, error)
-	Credit(ctx context.Context, in *CreditRequest, opts ...grpc.CallOption) (*MutateBalanceResponse, error)
-	Debit(ctx context.Context, in *DebitRequest, opts ...grpc.CallOption) (*MutateBalanceResponse, error)
+	Credit(ctx context.Context, in *CreditRequest, opts ...grpc.CallOption) (*CreditResponse, error)
+	Debit(ctx context.Context, in *DebitRequest, opts ...grpc.CallOption) (*DebitResponse, error)
 }
 
 type walletServiceClient struct {
@@ -63,9 +63,9 @@ func (c *walletServiceClient) GetBalance(ctx context.Context, in *GetBalanceRequ
 	return out, nil
 }
 
-func (c *walletServiceClient) Credit(ctx context.Context, in *CreditRequest, opts ...grpc.CallOption) (*MutateBalanceResponse, error) {
+func (c *walletServiceClient) Credit(ctx context.Context, in *CreditRequest, opts ...grpc.CallOption) (*CreditResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MutateBalanceResponse)
+	out := new(CreditResponse)
 	err := c.cc.Invoke(ctx, WalletService_Credit_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -73,9 +73,9 @@ func (c *walletServiceClient) Credit(ctx context.Context, in *CreditRequest, opt
 	return out, nil
 }
 
-func (c *walletServiceClient) Debit(ctx context.Context, in *DebitRequest, opts ...grpc.CallOption) (*MutateBalanceResponse, error) {
+func (c *walletServiceClient) Debit(ctx context.Context, in *DebitRequest, opts ...grpc.CallOption) (*DebitResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MutateBalanceResponse)
+	out := new(DebitResponse)
 	err := c.cc.Invoke(ctx, WalletService_Debit_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -89,8 +89,8 @@ func (c *walletServiceClient) Debit(ctx context.Context, in *DebitRequest, opts 
 type WalletServiceServer interface {
 	CreateWallet(context.Context, *CreateWalletRequest) (*CreateWalletResponse, error)
 	GetBalance(context.Context, *GetBalanceRequest) (*GetBalanceResponse, error)
-	Credit(context.Context, *CreditRequest) (*MutateBalanceResponse, error)
-	Debit(context.Context, *DebitRequest) (*MutateBalanceResponse, error)
+	Credit(context.Context, *CreditRequest) (*CreditResponse, error)
+	Debit(context.Context, *DebitRequest) (*DebitResponse, error)
 	mustEmbedUnimplementedWalletServiceServer()
 }
 
@@ -107,10 +107,10 @@ func (UnimplementedWalletServiceServer) CreateWallet(context.Context, *CreateWal
 func (UnimplementedWalletServiceServer) GetBalance(context.Context, *GetBalanceRequest) (*GetBalanceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBalance not implemented")
 }
-func (UnimplementedWalletServiceServer) Credit(context.Context, *CreditRequest) (*MutateBalanceResponse, error) {
+func (UnimplementedWalletServiceServer) Credit(context.Context, *CreditRequest) (*CreditResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Credit not implemented")
 }
-func (UnimplementedWalletServiceServer) Debit(context.Context, *DebitRequest) (*MutateBalanceResponse, error) {
+func (UnimplementedWalletServiceServer) Debit(context.Context, *DebitRequest) (*DebitResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Debit not implemented")
 }
 func (UnimplementedWalletServiceServer) mustEmbedUnimplementedWalletServiceServer() {}

@@ -381,7 +381,7 @@ func (x *DebitRequest) GetIdempotencyKey() string {
 	return ""
 }
 
-type MutateBalanceResponse struct {
+type CreditResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	WalletId      string                 `protobuf:"bytes,1,opt,name=wallet_id,json=walletId,proto3" json:"wallet_id,omitempty"`
 	BalanceMinor  int64                  `protobuf:"varint,2,opt,name=balance_minor,json=balanceMinor,proto3" json:"balance_minor,omitempty"`
@@ -391,20 +391,20 @@ type MutateBalanceResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *MutateBalanceResponse) Reset() {
-	*x = MutateBalanceResponse{}
+func (x *CreditResponse) Reset() {
+	*x = CreditResponse{}
 	mi := &file_wallet_v1_wallet_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MutateBalanceResponse) String() string {
+func (x *CreditResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MutateBalanceResponse) ProtoMessage() {}
+func (*CreditResponse) ProtoMessage() {}
 
-func (x *MutateBalanceResponse) ProtoReflect() protoreflect.Message {
+func (x *CreditResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_wallet_v1_wallet_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -416,33 +416,101 @@ func (x *MutateBalanceResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MutateBalanceResponse.ProtoReflect.Descriptor instead.
-func (*MutateBalanceResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreditResponse.ProtoReflect.Descriptor instead.
+func (*CreditResponse) Descriptor() ([]byte, []int) {
 	return file_wallet_v1_wallet_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *MutateBalanceResponse) GetWalletId() string {
+func (x *CreditResponse) GetWalletId() string {
 	if x != nil {
 		return x.WalletId
 	}
 	return ""
 }
 
-func (x *MutateBalanceResponse) GetBalanceMinor() int64 {
+func (x *CreditResponse) GetBalanceMinor() int64 {
 	if x != nil {
 		return x.BalanceMinor
 	}
 	return 0
 }
 
-func (x *MutateBalanceResponse) GetVersion() int64 {
+func (x *CreditResponse) GetVersion() int64 {
 	if x != nil {
 		return x.Version
 	}
 	return 0
 }
 
-func (x *MutateBalanceResponse) GetEntryId() string {
+func (x *CreditResponse) GetEntryId() string {
+	if x != nil {
+		return x.EntryId
+	}
+	return ""
+}
+
+type DebitResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WalletId      string                 `protobuf:"bytes,1,opt,name=wallet_id,json=walletId,proto3" json:"wallet_id,omitempty"`
+	BalanceMinor  int64                  `protobuf:"varint,2,opt,name=balance_minor,json=balanceMinor,proto3" json:"balance_minor,omitempty"`
+	Version       int64                  `protobuf:"varint,3,opt,name=version,proto3" json:"version,omitempty"`
+	EntryId       string                 `protobuf:"bytes,4,opt,name=entry_id,json=entryId,proto3" json:"entry_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DebitResponse) Reset() {
+	*x = DebitResponse{}
+	mi := &file_wallet_v1_wallet_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DebitResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DebitResponse) ProtoMessage() {}
+
+func (x *DebitResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_wallet_v1_wallet_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DebitResponse.ProtoReflect.Descriptor instead.
+func (*DebitResponse) Descriptor() ([]byte, []int) {
+	return file_wallet_v1_wallet_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DebitResponse) GetWalletId() string {
+	if x != nil {
+		return x.WalletId
+	}
+	return ""
+}
+
+func (x *DebitResponse) GetBalanceMinor() int64 {
+	if x != nil {
+		return x.BalanceMinor
+	}
+	return 0
+}
+
+func (x *DebitResponse) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *DebitResponse) GetEntryId() string {
 	if x != nil {
 		return x.EntryId
 	}
@@ -479,18 +547,23 @@ const file_wallet_v1_wallet_proto_rawDesc = "" +
 	"\famount_minor\x18\x02 \x01(\x03R\vamountMinor\x12\x1f\n" +
 	"\vtransfer_id\x18\x03 \x01(\tR\n" +
 	"transferId\x12'\n" +
-	"\x0fidempotency_key\x18\x04 \x01(\tR\x0eidempotencyKey\"\x8e\x01\n" +
-	"\x15MutateBalanceResponse\x12\x1b\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tR\x0eidempotencyKey\"\x87\x01\n" +
+	"\x0eCreditResponse\x12\x1b\n" +
 	"\twallet_id\x18\x01 \x01(\tR\bwalletId\x12#\n" +
 	"\rbalance_minor\x18\x02 \x01(\x03R\fbalanceMinor\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\x03R\aversion\x12\x19\n" +
-	"\bentry_id\x18\x04 \x01(\tR\aentryId2\xb5\x02\n" +
+	"\bentry_id\x18\x04 \x01(\tR\aentryId\"\x86\x01\n" +
+	"\rDebitResponse\x12\x1b\n" +
+	"\twallet_id\x18\x01 \x01(\tR\bwalletId\x12#\n" +
+	"\rbalance_minor\x18\x02 \x01(\x03R\fbalanceMinor\x12\x18\n" +
+	"\aversion\x18\x03 \x01(\x03R\aversion\x12\x19\n" +
+	"\bentry_id\x18\x04 \x01(\tR\aentryId2\xa6\x02\n" +
 	"\rWalletService\x12O\n" +
 	"\fCreateWallet\x12\x1e.wallet.v1.CreateWalletRequest\x1a\x1f.wallet.v1.CreateWalletResponse\x12I\n" +
 	"\n" +
-	"GetBalance\x12\x1c.wallet.v1.GetBalanceRequest\x1a\x1d.wallet.v1.GetBalanceResponse\x12D\n" +
-	"\x06Credit\x12\x18.wallet.v1.CreditRequest\x1a .wallet.v1.MutateBalanceResponse\x12B\n" +
-	"\x05Debit\x12\x17.wallet.v1.DebitRequest\x1a .wallet.v1.MutateBalanceResponseB=Z;github.com/adel-safin/go-payment/api/gen/wallet/v1;walletv1b\x06proto3"
+	"GetBalance\x12\x1c.wallet.v1.GetBalanceRequest\x1a\x1d.wallet.v1.GetBalanceResponse\x12=\n" +
+	"\x06Credit\x12\x18.wallet.v1.CreditRequest\x1a\x19.wallet.v1.CreditResponse\x12:\n" +
+	"\x05Debit\x12\x17.wallet.v1.DebitRequest\x1a\x18.wallet.v1.DebitResponseB=Z;github.com/adel-safin/go-payment/api/gen/wallet/v1;walletv1b\x06proto3"
 
 var (
 	file_wallet_v1_wallet_proto_rawDescOnce sync.Once
@@ -504,15 +577,16 @@ func file_wallet_v1_wallet_proto_rawDescGZIP() []byte {
 	return file_wallet_v1_wallet_proto_rawDescData
 }
 
-var file_wallet_v1_wallet_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_wallet_v1_wallet_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_wallet_v1_wallet_proto_goTypes = []any{
-	(*CreateWalletRequest)(nil),   // 0: wallet.v1.CreateWalletRequest
-	(*CreateWalletResponse)(nil),  // 1: wallet.v1.CreateWalletResponse
-	(*GetBalanceRequest)(nil),     // 2: wallet.v1.GetBalanceRequest
-	(*GetBalanceResponse)(nil),    // 3: wallet.v1.GetBalanceResponse
-	(*CreditRequest)(nil),         // 4: wallet.v1.CreditRequest
-	(*DebitRequest)(nil),          // 5: wallet.v1.DebitRequest
-	(*MutateBalanceResponse)(nil), // 6: wallet.v1.MutateBalanceResponse
+	(*CreateWalletRequest)(nil),  // 0: wallet.v1.CreateWalletRequest
+	(*CreateWalletResponse)(nil), // 1: wallet.v1.CreateWalletResponse
+	(*GetBalanceRequest)(nil),    // 2: wallet.v1.GetBalanceRequest
+	(*GetBalanceResponse)(nil),   // 3: wallet.v1.GetBalanceResponse
+	(*CreditRequest)(nil),        // 4: wallet.v1.CreditRequest
+	(*DebitRequest)(nil),         // 5: wallet.v1.DebitRequest
+	(*CreditResponse)(nil),       // 6: wallet.v1.CreditResponse
+	(*DebitResponse)(nil),        // 7: wallet.v1.DebitResponse
 }
 var file_wallet_v1_wallet_proto_depIdxs = []int32{
 	0, // 0: wallet.v1.WalletService.CreateWallet:input_type -> wallet.v1.CreateWalletRequest
@@ -521,8 +595,8 @@ var file_wallet_v1_wallet_proto_depIdxs = []int32{
 	5, // 3: wallet.v1.WalletService.Debit:input_type -> wallet.v1.DebitRequest
 	1, // 4: wallet.v1.WalletService.CreateWallet:output_type -> wallet.v1.CreateWalletResponse
 	3, // 5: wallet.v1.WalletService.GetBalance:output_type -> wallet.v1.GetBalanceResponse
-	6, // 6: wallet.v1.WalletService.Credit:output_type -> wallet.v1.MutateBalanceResponse
-	6, // 7: wallet.v1.WalletService.Debit:output_type -> wallet.v1.MutateBalanceResponse
+	6, // 6: wallet.v1.WalletService.Credit:output_type -> wallet.v1.CreditResponse
+	7, // 7: wallet.v1.WalletService.Debit:output_type -> wallet.v1.DebitResponse
 	4, // [4:8] is the sub-list for method output_type
 	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -541,7 +615,7 @@ func file_wallet_v1_wallet_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_wallet_v1_wallet_proto_rawDesc), len(file_wallet_v1_wallet_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
