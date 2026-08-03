@@ -1,0 +1,224 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: payment
+      POSTGRES_PASSWORD: payment
+      POSTGRES_DB: payment
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U payment -d payment"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.4
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
+      - --advertise-pandaproxy-addr internal://redpanda:8082,external://localhost:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
+      - --rpc-addr redpanda:33145
+      - --advertise-rpc-addr redpanda:33145
+      - --mode dev-container
+      - --smp 1
+      - --default-log-level=warn
+    ports:
+      - "19092:19092"
+      - "18081:18081"
+      - "18082:18082"
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy'"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  redpanda-init:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.4
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        rpk topic create transfer.events --brokers redpanda:9092 || true
+        rpk topic create transfer.events.dlq --brokers redpanda:9092 || true
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.114.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "8889:8889"
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.62
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - otel-collector
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
+  identity:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        SERVICE: identity
+    environment:
+      GRPC_ADDR: ":9091"
+      HTTP_ADDR: ":8081"
+      DATABASE_URL: postgres://payment:payment@postgres:5432/identity?sslmode=disable
+      JWT_SECRET: dev-secret-change-me
+      JWT_ISSUER: go-payment
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      LOG_LEVEL: info
+    ports:
+      - "8081:8081"
+      - "9091:9091"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  wallet:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        SERVICE: wallet
+    environment:
+      GRPC_ADDR: ":9092"
+      HTTP_ADDR: ":8082"
+      DATABASE_URL: postgres://payment:payment@postgres:5432/wallet?sslmode=disable
+      REDIS_ADDR: redis:6379
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      LOG_LEVEL: info
+    ports:
+      - "8082:8082"
+      - "9092:9092"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  transfer:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        SERVICE: transfer
+    environment:
+      GRPC_ADDR: ":9093"
+      HTTP_ADDR: ":8083"
+      DATABASE_URL: postgres://payment:payment@postgres:5432/transfer?sslmode=disable
+      REDIS_ADDR: redis:6379
+      KAFKA_BROKERS: redpanda:9092
+      KAFKA_TOPIC: transfer.events
+      KAFKA_DLQ_TOPIC: transfer.events.dlq
+      WALLET_GRPC_ADDR: wallet:9092
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      LOG_LEVEL: info
+    ports:
+      - "8083:8083"
+      - "9093:9093"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redpanda-init:
+        condition: service_completed_successfully
+      wallet:
+        condition: service_started
+
+  notification:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        SERVICE: notification
+    environment:
+      HTTP_ADDR: ":8084"
+      DATABASE_URL: postgres://payment:payment@postgres:5432/notification?sslmode=disable
+      KAFKA_BROKERS: redpanda:9092
+      KAFKA_TOPIC: transfer.events
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      LOG_LEVEL: info
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda-init:
+        condition: service_completed_successfully
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        SERVICE: gateway
+    environment:
+      HTTP_ADDR: ":8080"
+      IDENTITY_GRPC_ADDR: identity:9091
+      WALLET_GRPC_ADDR: wallet:9092
+      TRANSFER_GRPC_ADDR: transfer:9093
+      JWT_SECRET: dev-secret-change-me
+      JWT_ISSUER: go-payment
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+      LOG_LEVEL: info
+    ports:
+      - "8080:8080"
+    depends_on:
+      - identity
+      - wallet
+      - transfer
+
+volumes:
+  pgdata:

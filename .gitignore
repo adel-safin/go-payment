@@ -1,0 +1,13 @@
+bin/
+*.exe
+*.test
+*.out
+.idea/
+.vscode/
+.DS_Store
+coverage.out
+coverage.html
+.env
+.env.local
+tmp/
+vendor/
